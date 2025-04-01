@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 
 const LoginPage = () => {
-  const { user, signIn, isLoading } = useAuth();
+  const { user, signIn, signInWithGoogle, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -122,7 +122,7 @@ const LoginPage = () => {
             <div className="mt-6">
               <Button
                 type="button"
-                onClick={() => signInWithGoogle()}
+                onClick={signInWithGoogle}
                 className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
