@@ -9,7 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      sounds: {
+        Row: {
+          created_at: string | null
+          creator_name: string | null
+          icon_url: string | null
+          id: string
+          last_scrape: string | null
+          pct_change_1d: number | null
+          pct_change_1m: number | null
+          pct_change_1w: number | null
+          scrape_history: string[] | null
+          sound_name: string | null
+          total_views: number | null
+          url: string
+          user_id: string
+          video_count: number | null
+          video_history: number[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_name?: string | null
+          icon_url?: string | null
+          id?: string
+          last_scrape?: string | null
+          pct_change_1d?: number | null
+          pct_change_1m?: number | null
+          pct_change_1w?: number | null
+          scrape_history?: string[] | null
+          sound_name?: string | null
+          total_views?: number | null
+          url: string
+          user_id: string
+          video_count?: number | null
+          video_history?: number[] | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_name?: string | null
+          icon_url?: string | null
+          id?: string
+          last_scrape?: string | null
+          pct_change_1d?: number | null
+          pct_change_1m?: number | null
+          pct_change_1w?: number | null
+          scrape_history?: string[] | null
+          sound_name?: string | null
+          total_views?: number | null
+          url?: string
+          user_id?: string
+          video_count?: number | null
+          video_history?: number[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
