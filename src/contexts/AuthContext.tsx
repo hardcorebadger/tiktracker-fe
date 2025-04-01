@@ -12,6 +12,7 @@ type AuthContextType = {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   mockSubscribe: () => void;
+  signInWithGoogle: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +71,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsPaidUser(false);
   };
 
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/dashboard'
+      }
+    });
+  };
+
   const value = {
     user,
     session,
@@ -78,7 +88,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signIn,
     signUp,
     signOut,
-    mockSubscribe
+    mockSubscribe,
+    signInWithGoogle
   };
 
   return (
