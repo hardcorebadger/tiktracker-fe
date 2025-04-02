@@ -1,8 +1,8 @@
-
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
+import { PageHeader } from '@/components/PageHeader';
 
 const SettingsPage = () => {
   const { user, signOut } = useAuth();
@@ -29,32 +29,38 @@ const SettingsPage = () => {
     <>
       <Header />
       <div className="container mx-auto px-4 py-6 max-w-3xl">
-        <div className="bg-white shadow rounded-lg">
+        <div className="mb-8">
+          <PageHeader
+            title="Settings"
+            description="Manage your account settings and preferences."
+            breadcrumbs={[
+              { label: "Settings" }
+            ]}
+          />
+        </div>
+
+        <div className="bg-card shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">
-              Account Settings
-            </h3>
-            
             <div className="mt-6">
-              <dl className="divide-y divide-gray-200">
+              <dl className="divide-y divide-border">
                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-sm font-medium text-muted-foreground">
                     Email address
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
                     {user?.email}
                   </dd>
                 </div>
                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-sm font-medium text-muted-foreground">
                     Subscription
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                  <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
                     Premium Plan ($200/month)
                   </dd>
                 </div>
                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                  <dt className="text-sm font-medium text-gray-500">
+                  <dt className="text-sm font-medium text-muted-foreground">
                     Account status
                   </dt>
                   <dd className="mt-1 text-sm text-green-600 sm:mt-0 sm:col-span-2">
