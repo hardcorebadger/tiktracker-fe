@@ -2,12 +2,20 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, Sparkles } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ThankYouPage = () => {
   const navigate = useNavigate();
+  const { isPaidUser } = useAuth();
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
+    // If user is not paid, redirect to paywall
+    if (!isPaidUser) {
+      navigate('/paywall');
+      return;
+    }
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -20,7 +28,7 @@ const ThankYouPage = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, [navigate, isPaidUser]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
@@ -32,13 +40,13 @@ const ThankYouPage = () => {
         </div>
         
         <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl mb-4">
-          Welcome to TikTrack!
+          Welcome to TikTrack Pro!
         </h1>
         
         <div className="flex items-center justify-center gap-2 mb-8">
           <Sparkles className="w-6 h-6 text-primary" />
           <p className="text-xl text-muted-foreground">
-            Your free trial has started
+            Your subscription is now active
           </p>
           <Sparkles className="w-6 h-6 text-primary" />
         </div>

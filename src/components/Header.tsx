@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Menu, Music, User } from 'lucide-react';
+import { Menu, Music, User, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 const Header = () => {
@@ -38,6 +38,14 @@ const Header = () => {
                     <User className="h-4 w-4" />
                   </Button>
                 </Link>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={() => signOut()}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
               </div>
 
               {/* Mobile Menu Button */}
@@ -72,6 +80,15 @@ const Header = () => {
             >
               Settings
             </Link>
+            <button
+              onClick={() => {
+                signOut();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left px-3 py-2 text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted"
+            >
+              Logout
+            </button>
           </div>
         </div>
       )}

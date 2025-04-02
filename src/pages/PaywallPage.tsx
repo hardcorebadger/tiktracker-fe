@@ -4,19 +4,43 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Music, LineChart, Clock, Cloud } from 'lucide-react';
 import Header from '@/components/Header';
+import { useEffect } from 'react';
 
 const PaywallPage = () => {
-  const { mockSubscribe } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session, isPaidUser } = useAuth();
 
-  const handleSubscribe = () => {
-    mockSubscribe();
-    toast({
-      title: "Trial started!",
-      description: "Welcome to TikTrack. Your 7-day free trial has begun.",
-    });
-    navigate('/thank-you');
+  useEffect(() => {
+    if (isPaidUser) {
+      navigate('/dashboard');
+    }
+  }, [isPaidUser, navigate]);
+
+  const handleSubscribe = async () => {
+    try {
+      const response = await fetch('https://sbpvjkbvfidctopscnhm.supabase.co/functions/v1/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

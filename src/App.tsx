@@ -55,9 +55,9 @@ const App = () => (
             <Route 
               path="/settings" 
               element={
-                <PaidUserRoute>
+                <ProtectedRoute>
                   <SettingsPage />
-                </PaidUserRoute>
+                </ProtectedRoute>
               } 
             />
             <Route path="*" element={<NotFound />} />
