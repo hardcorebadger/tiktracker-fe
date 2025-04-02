@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
-      const isActive = data?.status === 'active' && 
+      const isActive = (data?.status === 'active' || data?.status === 'trialing') && 
         new Date(data.current_period_end) > new Date();
       
       // Update cache

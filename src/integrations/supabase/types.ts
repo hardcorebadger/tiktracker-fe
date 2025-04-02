@@ -69,7 +69,7 @@ export type Database = {
           user_id: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
-          status: 'active' | 'canceled' | 'past_due' | null
+          status: 'active' | 'canceled' | 'past_due' | 'trialing' | null
           current_period_end: string | null
           created_at: string
           updated_at: string
@@ -79,7 +79,7 @@ export type Database = {
           user_id: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
-          status?: 'active' | 'canceled' | 'past_due' | null
+          status?: 'active' | 'canceled' | 'past_due' | 'trialing' | null
           current_period_end?: string | null
           created_at?: string
           updated_at?: string
@@ -89,7 +89,7 @@ export type Database = {
           user_id?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
-          status?: 'active' | 'canceled' | 'past_due' | null
+          status?: 'active' | 'canceled' | 'past_due' | 'trialing' | null
           current_period_end?: string | null
           created_at?: string
           updated_at?: string
