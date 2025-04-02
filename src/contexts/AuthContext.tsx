@@ -3,8 +3,6 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
-type Subscription = Database['public']['Tables']['subscriptions']['Row'];
-
 type AuthContextType = {
   user: User | null;
   session: Session | null;
@@ -18,127 +16,206 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Simple cache for subscription status to avoid excessive API calls
+ */
+const subscriptionCache = new Map<string, {isActive: boolean, timestamp: number}>();
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaidUser, setIsPaidUser] = useState(false);
 
-  const checkSubscriptionStatus = async (userId: string) => {
+  /**
+   * Check if user has an active subscription
+   */
+  const checkSubscription = async (userId: string) => {
     try {
-      console.log('Starting subscription check for user:', userId);
+      // Check cache first (valid for 5 minutes)
+      const cached = subscriptionCache.get(userId);
+      const now = Date.now();
       
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Subscription check timeout')), 3000);
-      });
-
-      console.log('Making Supabase query...');
-      const queryPromise = supabase
+      if (cached && (now - cached.timestamp < 5 * 60 * 1000)) {
+        console.log('Using cached subscription status');
+        setIsPaidUser(cached.isActive);
+        return;
+      }
+      
+      console.log('Checking subscription for user:', userId);
+      const { data, error } = await supabase
         .from('subscriptions')
         .select('status, current_period_end')
         .eq('user_id', userId)
-        .limit(1);
-
-      const { data, error } = await Promise.race([
-        queryPromise,
-        timeoutPromise
-      ]) as { data: { status: string; current_period_end: string }[] | null; error: { message: string; details?: string; hint?: string } | null };
-
-      console.log('Query completed');
-
-      if (error) {
-        console.error('Subscription check error:', error.message, error.details, error.hint);
-        throw error;
-      }
-
-      console.log('Raw subscription data:', data);
-      const subscription = data?.[0];
-      console.log('Parsed subscription:', subscription);
-
-      const isActive = subscription?.status === 'active' && 
-        new Date(subscription.current_period_end) > new Date();
+        .maybeSingle();
       
-      console.log('Subscription active status:', isActive);
+      if (error) {
+        console.error('Subscription check failed:', error);
+        setIsPaidUser(false);
+        return;
+      }
+      
+      const isActive = data?.status === 'active' && 
+        new Date(data.current_period_end) > new Date();
+      
+      // Update cache
+      subscriptionCache.set(userId, {
+        isActive,
+        timestamp: now
+      });
+      
       setIsPaidUser(isActive);
-    } catch (error) {
-      console.error('Error in subscription check:', error instanceof Error ? error.message : error);
-      if ('code' in (error as any)) console.error('Error code:', (error as any).code);
-      if ('details' in (error as any)) console.error('Error details:', (error as any).details);
+    } catch (err) {
+      console.error('Error checking subscription:', err);
       setIsPaidUser(false);
-    } finally {
-      console.log('Subscription check completed');
+    }
+  };
+  
+  /**
+   * Update session and check subscription
+   */
+  const updateSession = async (newSession: Session | null) => {
+    setSession(newSession);
+    setUser(newSession?.user || null);
+    
+    if (newSession?.user) {
+      await checkSubscription(newSession.user.id);
+    } else {
+      setIsPaidUser(false);
     }
   };
 
+  // Only use auth listener for initial load and external changes
   useEffect(() => {
-    console.log('Setting up auth state listener');
-    let isMounted = false;
+    let mounted = true;
+    console.log('Setting up auth provider');
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
-      setSession(session);
-      setUser(session?.user || null);
-
-      if (event === 'INITIAL_SESSION') {
-        console.log('Auth mounted');
-        isMounted = true;
-        if (session?.user) {
-          await checkSubscriptionStatus(session.user.id);
-        } else {
-          setIsPaidUser(false);
-        }
+    // Safety timeout
+    const safetyTimeout = setTimeout(() => {
+      if (mounted && isLoading) {
+        console.log('Safety timeout triggered');
         setIsLoading(false);
-      } else if (event === 'SIGNED_OUT') {
-        setIsPaidUser(false);
-        setIsLoading(false);
-      } else if (!isMounted) {
-        // Wait for auth to be mounted
-        console.log('Waiting for auth to mount...');
+      }
+    }, 3000);
+    
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+      if (!mounted) return;
+      
+      console.log('Initial session loaded');
+      if (initialSession?.user) {
+        await updateSession(initialSession);
       } else {
-        // Auth is mounted and we have a non-initial event
-        console.log('Auth is mounted and we have a non-initial event (signed in)');
-        if (session?.user) {
-          // Keep loading true until subscription check completes
-          setIsLoading(true);
-          await checkSubscriptionStatus(session.user.id);
-          setIsLoading(false);
-        } else {
-          setIsPaidUser(false);
-          setIsLoading(false);
+        setSession(null);
+        setUser(null);
+        setIsPaidUser(false);
+      }
+      
+      setIsLoading(false);
+    }).catch(error => {
+      console.error('Error getting session:', error);
+      if (mounted) setIsLoading(false);
+    });
+    
+    // Set up listener ONLY for external auth changes (session expiry, etc)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        if (!mounted) return;
+        
+        console.log('External auth change detected:', event);
+        // Only handle things that weren't triggered by our explicit methods
+        if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          await updateSession(newSession);
         }
       }
-    });
-
-    // Initialize loading state
-    setIsLoading(true);
-
+    );
+    
     return () => {
+      mounted = false;
+      clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
   }, []);
-
+  
+  // Auth methods with direct state updates
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
+      
+      if (!error && data.session) {
+        await updateSession(data.session);
+      }
+      
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
   };
-
+  
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    return { error };
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password 
+      });
+      
+      if (!error && data.session) {
+        await updateSession(data.session);
+      }
+      
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
   };
-
+  
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setIsPaidUser(false);
+    setIsLoading(true);
+    
+    try {
+      await supabase.auth.signOut();
+      
+      // Explicitly clear state instead of waiting for listener
+      setUser(null);
+      setSession(null);
+      setIsPaidUser(false);
+      subscriptionCache.clear();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      
+      // Still clear state on error
+      setUser(null);
+      setSession(null);
+      setIsPaidUser(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
-
+  
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
+    setIsLoading(true);
+    
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+      
+      // Can't directly handle response here because of redirect
+      // Loading state will be reset on page reload after OAuth
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      setIsLoading(false);
+    }
   };
 
   return (
