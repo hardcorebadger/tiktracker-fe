@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: import.meta.env.VITE_APP_URL + '/dashboard'
+        redirectTo: window.location.origin + '/dashboard'
       }
     });
   };
