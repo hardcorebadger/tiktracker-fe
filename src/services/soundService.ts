@@ -14,6 +14,7 @@ export interface Sound {
   pct_change_1d: number | null;
   pct_change_1w: number | null;
   pct_change_1m: number | null;
+  last_scrape: Date | null;
 }
 
 export const getSounds = async (): Promise<Sound[]> => {
@@ -41,6 +42,7 @@ export const getSounds = async (): Promise<Sound[]> => {
       pct_change_1d: sound.pct_change_1d,
       pct_change_1w: sound.pct_change_1w,
       pct_change_1m: sound.pct_change_1m,
+      last_scrape: sound.last_scrape ? new Date(sound.last_scrape) : null,
     }));
 
     return processedSounds;
@@ -116,6 +118,7 @@ export const addSound = async (url: string): Promise<Sound | null> => {
       pct_change_1d: data.pct_change_1d,
       pct_change_1w: data.pct_change_1w,
       pct_change_1m: data.pct_change_1m,
+      last_scrape: data.last_scrape ? new Date(data.last_scrape) : null,
     };
   } catch (error) {
     console.error('Error in addSound:', error);
