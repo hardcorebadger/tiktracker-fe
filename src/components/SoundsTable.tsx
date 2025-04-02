@@ -51,7 +51,7 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
     header: "Sound",
     cell: ({ row }) => {
       const sound = row.original
-      const isImporting = !sound.last_scrape
+      const isImporting = sound.last_scrape === null
       return (
         <div className={`flex items-center min-w-[300px] ${isImporting ? 'opacity-70' : ''}`}>
           <img 
