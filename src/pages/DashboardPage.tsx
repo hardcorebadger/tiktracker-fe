@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { SoundsTable } from '@/components/SoundsTable';
 import { PageHeader } from '@/components/PageHeader';
+import { Music } from 'lucide-react';
 
 const DashboardPage = () => {
   const [sounds, setSounds] = useState<Sound[]>([]);
@@ -134,29 +135,47 @@ const DashboardPage = () => {
     <>
       <Header />
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="mb-8">
-          <PageHeader 
-            title="Dashboard" 
-            description="Track your TikTok sounds and monitor their performance."
-          />
-        </div>
-
         {sounds.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-lg text-gray-500">
-              You haven't added any sounds yet. Add your first TikTok sound URL above.
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
+            <div className="mb-8">
+              <Music className="h-16 w-16 text-primary mx-auto" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight mb-4">
+              Start tracking your TikTok sounds
+            </h1>
+            <p className="text-muted-foreground mb-8 max-w-md">
+              Add your first TikTok sound URL to begin monitoring its performance and growth metrics.
             </p>
+            <form onSubmit={handleAddSound} className="w-full max-w-md flex gap-2">
+              <Input
+                placeholder="Enter TikTok sound URL"
+                value={newSoundUrl}
+                onChange={(e) => setNewSoundUrl(e.target.value)}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Adding..." : "Add Sound"}
+              </Button>
+            </form>
           </div>
         ) : (
-          <SoundsTable 
-            data={sounds}
-            onRowClick={handleRowClick}
-            onDelete={handleDeleteSound}
-            onAddSound={handleAddSound}
-            isSubmitting={isSubmitting}
-            newSoundUrl={newSoundUrl}
-            setNewSoundUrl={setNewSoundUrl}
-          />
+          <>
+            <div className="mb-8">
+              <PageHeader 
+                title="Dashboard" 
+                description="Track your TikTok sounds and monitor their performance."
+              />
+            </div>
+            <SoundsTable 
+              data={sounds}
+              onRowClick={handleRowClick}
+              onDelete={handleDeleteSound}
+              onAddSound={handleAddSound}
+              isSubmitting={isSubmitting}
+              newSoundUrl={newSoundUrl}
+              setNewSoundUrl={setNewSoundUrl}
+            />
+          </>
         )}
       </div>
     </>

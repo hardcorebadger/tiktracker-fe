@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import PaywallPage from "./pages/PaywallPage";
+import ThankYouPage from "./pages/ThankYouPage";
 import DashboardPage from "./pages/DashboardPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
@@ -33,6 +33,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PaywallPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/thank-you" 
+              element={
+                <ProtectedRoute>
+                  <ThankYouPage />
                 </ProtectedRoute>
               } 
             />

@@ -1,8 +1,8 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { Music, LineChart, Clock, Cloud } from 'lucide-react';
 import Header from '@/components/Header';
 
 const PaywallPage = () => {
@@ -11,89 +11,93 @@ const PaywallPage = () => {
   const { toast } = useToast();
 
   const handleSubscribe = () => {
-    // Simulate subscription
     mockSubscribe();
     toast({
-      title: "Subscription successful!",
-      description: "Welcome to TikTrack's premium service.",
+      title: "Trial started!",
+      description: "Welcome to TikTrack. Your 7-day free trial has begun.",
     });
-    navigate('/dashboard');
+    navigate('/thank-you');
   };
 
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="px-6 py-8 bg-tiktrack-600 sm:p-10 sm:pb-6">
+      <div className="min-h-screen bg-background">
+        <div className="max-w-2xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              Unlock your music's
+              <br />
+              potential today
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground">
+              First 7 days are free
+            </p>
+          </div>
+
+          <div className="mt-12 space-y-8">
+            <div className="flex items-start space-x-4 p-4 rounded-lg bg-card/50">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Music className="w-6 h-6 text-primary" />
+              </div>
               <div>
-                <h3 className="text-center text-3xl font-extrabold text-white">
-                  Premium Access
-                </h3>
-                <div className="mt-4 flex justify-center">
-                  <div className="flex items-baseline text-white">
-                    <span className="text-5xl font-extrabold tracking-tight">$200</span>
-                    <span className="ml-1 text-2xl font-medium">/month</span>
-                  </div>
-                </div>
+                <h3 className="font-semibold text-foreground">Unlimited Sound Tracking</h3>
+                <p className="text-sm text-muted-foreground">
+                Monitor unlimited TikTok sounds with real time high quality scraping.
+                  
+                </p>
               </div>
             </div>
-            <div className="px-6 pt-6 pb-8 bg-white sm:p-10 sm:pt-6">
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="ml-3 text-base text-gray-700">
-                    Unlimited sound tracking
-                  </p>
-                </li>
-                <li className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="ml-3 text-base text-gray-700">
-                    Real-time view data
-                  </p>
-                </li>
-                <li className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="ml-3 text-base text-gray-700">
-                    Trend analysis and charts
-                  </p>
-                </li>
-                <li className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="ml-3 text-base text-gray-700">
-                    Priority support
-                  </p>
-                </li>
-              </ul>
-              <div className="mt-8">
-                <Button
-                  onClick={handleSubscribe}
-                  className="w-full bg-tiktrack-600 hover:bg-tiktrack-700 focus:ring-tiktrack-500 text-white font-bold py-3 px-4 rounded"
-                >
-                  Subscribe Now
-                </Button>
+
+            <div className="flex items-start space-x-4 p-4 rounded-lg bg-card/50">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <LineChart className="w-6 h-6 text-primary" />
               </div>
-              <div className="mt-4 text-sm text-gray-500 text-center">
-                Cancel anytime. No contracts.
+              <div>
+                <h3 className="font-semibold text-foreground">Advanced Analytics</h3>
+                <p className="text-sm text-muted-foreground">
+                Track daily video creates over time to see how your sound is performing.
+                </p>
               </div>
             </div>
+
+            <div className="flex items-start space-x-4 p-4 rounded-lg bg-card/50">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Clock className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Real-time Updates</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get instant notifications about your sound's performance and trends.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4 p-4 rounded-lg bg-card/50">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Cloud className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Cloud Synced Data</h3>
+                <p className="text-sm text-muted-foreground">
+                  Access your analytics from anywhere, always in sync across devices.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center">
+            <Button
+              onClick={handleSubscribe}
+              size="lg"
+              className="w-full max-w-md text-lg font-medium"
+            >
+              Start free trial
+              <span className="ml-2 text-primary-foreground/80">$200/m</span>
+            </Button>
+            <p className="mt-4 text-sm text-center text-muted-foreground">
+              Cancel anytime. No contracts.
+            </p>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal, ExternalLink, Trash2 } from "lucide-react"
+import { ArrowUpDown, MoreHorizontal, ExternalLink, Trash2, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,6 +25,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 import { Sound } from "@/services/soundService"
 import Sparkline from "./Sparkline"
 import { AddSoundModal } from "./AddSoundModal"
@@ -45,16 +51,32 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
     header: "Sound",
     cell: ({ row }) => {
       const sound = row.original
+      const isImporting = !sound.last_scrape
       return (
-        <div className="flex items-center">
+        <div className={`flex items-center min-w-[300px] ${isImporting ? 'opacity-70' : ''}`}>
           <img 
             src={sound.icon_url} 
             alt={sound.sound_name} 
             className="h-10 w-10 rounded-md object-cover mr-3"
           />
-          <div>
-            <div className="font-medium text-foreground">{sound.sound_name}</div>
-            <div className="text-sm text-muted-foreground">{sound.creator_name}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="font-medium text-foreground truncate">{sound.sound_name}</div>
+              {isImporting && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span>Importing</span>
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>First data import in progress</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+            <div className="text-sm text-muted-foreground truncate">{sound.creator_name}</div>
           </div>
         </div>
       )
@@ -271,7 +293,7 @@ export function SoundsTable({
               placeholder="Enter TikTok sound URL"
               value={newSoundUrl}
               onChange={(e) => setNewSoundUrl(e.target.value)}
-              className="w-[300px]"
+              className="w-[200px]"
             />
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Adding..." : "Add Sound"}
