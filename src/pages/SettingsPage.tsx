@@ -33,9 +33,6 @@ const SettingsPage = () => {
           <PageHeader
             title="Settings"
             description="Manage your account settings and preferences."
-            breadcrumbs={[
-              { label: "Settings" }
-            ]}
           />
         </div>
 

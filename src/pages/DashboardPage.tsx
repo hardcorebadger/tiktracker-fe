@@ -135,12 +135,9 @@ const DashboardPage = () => {
       <Header />
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="mb-8">
-          <PageHeader
-            title="TikTok Sounds"
-            description="Track and monitor your favorite TikTok sounds and their growth metrics."
-            breadcrumbs={[
-              { label: "Sounds" }
-            ]}
+          <PageHeader 
+            title="Dashboard" 
+            description="Track your TikTok sounds and monitor their performance."
           />
         </div>
 

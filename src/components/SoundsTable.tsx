@@ -53,8 +53,8 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
             className="h-10 w-10 rounded-md object-cover mr-3"
           />
           <div>
-            <div className="font-medium text-gray-900">{sound.sound_name}</div>
-            <div className="text-sm text-gray-500">{sound.creator_name}</div>
+            <div className="font-medium text-foreground">{sound.sound_name}</div>
+            <div className="text-sm text-muted-foreground">{sound.creator_name}</div>
           </div>
         </div>
       )
@@ -308,7 +308,7 @@ export function SoundsTable({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="cursor-pointer hover:bg-gray-50"
+                  className="cursor-pointer hover:bg-muted"
                   onClick={() => onRowClick(row.original.url)}
                 >
                   {row.getVisibleCells().map((cell) => (
