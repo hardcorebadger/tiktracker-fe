@@ -117,7 +117,7 @@ const PaywallPage = () => {
               className="w-full max-w-md text-lg font-medium"
             >
               Start free trial
-              <span className="ml-2 text-primary-foreground/80">$200/m</span>
+              <span className="ml-2 text-primary-foreground/80">$99/m</span>
             </Button>
             <p className="mt-4 text-sm text-center text-muted-foreground">
               Cancel anytime. No contracts.
