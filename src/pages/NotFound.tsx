@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { withPageTracking } from '@/components/withPageTracking';
 
 const NotFound = () => {
   const location = useLocation();
@@ -24,4 +25,4 @@ const NotFound = () => {
   );
 };
 
-export default NotFound;
+export default withPageTracking(NotFound, '404 Not Found');

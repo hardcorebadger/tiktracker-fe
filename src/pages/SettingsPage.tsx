@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/Header';
 import { PageHeader } from '@/components/PageHeader';
+import { withPageTracking } from '@/components/withPageTracking';
 
 const SettingsPage = () => {
   const { user, signOut } = useAuth();
@@ -53,7 +54,7 @@ const SettingsPage = () => {
                     Subscription
                   </dt>
                   <dd className="mt-1 text-sm sm:mt-0 sm:col-span-2">
-                    Premium Plan ($200/month)
+                    Premium Plan ($99/month)
                   </dd>
                 </div>
                 <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
@@ -83,4 +84,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default withPageTracking(SettingsPage, 'Settings');

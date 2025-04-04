@@ -9,6 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { SoundsTable } from '@/components/SoundsTable';
 import { PageHeader } from '@/components/PageHeader';
 import { Music } from 'lucide-react';
+import { withPageTracking } from '@/components/withPageTracking';
+import { track } from '@/services/mixpanel';
 
 const DashboardPage = () => {
   const [sounds, setSounds] = useState<Sound[]>([]);
@@ -56,6 +58,10 @@ const DashboardPage = () => {
         description: "Please enter a TikTok sound URL.",
         variant: "destructive",
       });
+      track('Sound Add Failed', {
+        reason: 'Empty URL',
+        url: newSoundUrl
+      });
       return;
     }
 
@@ -69,12 +75,26 @@ const DashboardPage = () => {
         title: "Success",
         description: "Sound added successfully!",
       });
+      
+      // Track successful sound addition
+      track('Sound Added', {
+        sound_id: newSound.id,
+        sound_url: newSound.url,
+        total_sounds: sounds.length + 1,
+        is_first_sound: sounds.length === 0
+      });
     } catch (error) {
       console.error('Error adding sound:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to add sound. Please try again.",
         variant: "destructive",
+      });
+      
+      // Track failed sound addition
+      track('Sound Add Failed', {
+        reason: error instanceof Error ? error.message : 'Unknown error',
+        url: newSoundUrl
       });
     } finally {
       setIsSubmitting(false);
@@ -85,6 +105,7 @@ const DashboardPage = () => {
     e.stopPropagation(); // Prevent row click event
     
     try {
+      const sound = sounds.find(s => s.id === id);
       const success = await deleteSound(id);
       if (success) {
         setSounds(prev => prev.filter(sound => sound.id !== id));
@@ -92,11 +113,25 @@ const DashboardPage = () => {
           title: "Success",
           description: "Sound deleted successfully!",
         });
+        
+        // Track successful sound deletion
+        track('Sound Deleted', {
+          sound_id: id,
+          sound_url: sound?.url,
+          total_sounds: sounds.length - 1
+        });
       } else {
         toast({
           title: "Error",
           description: "Failed to delete sound. Please try again.",
           variant: "destructive",
+        });
+        
+        // Track failed sound deletion
+        track('Sound Delete Failed', {
+          sound_id: id,
+          sound_url: sound?.url,
+          reason: 'API returned false'
         });
       }
     } catch (error) {
@@ -105,6 +140,12 @@ const DashboardPage = () => {
         title: "Error",
         description: "Failed to delete sound. Please try again.",
         variant: "destructive",
+      });
+      
+      // Track failed sound deletion
+      track('Sound Delete Failed', {
+        sound_id: id,
+        reason: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   };
@@ -182,4 +223,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default withPageTracking(DashboardPage, 'Dashboard');

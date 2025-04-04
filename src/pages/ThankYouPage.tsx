@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { withPageTracking } from '@/components/withPageTracking';
 
 const ThankYouPage = () => {
   const navigate = useNavigate();
@@ -73,4 +74,4 @@ const ThankYouPage = () => {
   );
 };
 
-export default ThankYouPage; 
+export default withPageTracking(ThankYouPage, 'Thank You'); 

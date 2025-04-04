@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Music } from 'lucide-react';
+import { withPageTracking } from '@/components/withPageTracking';
+import { track } from '@/services/mixpanel';
 
 const LoginPage = () => {
   const { user, signIn, signInWithGoogle, isLoading } = useAuth();
@@ -29,7 +31,16 @@ const LoginPage = () => {
           description: error.message || "Could not connect to authentication service. Please try again.",
           variant: "destructive",
         });
+        track('Login Failed', {
+          method: 'email',
+          error: error.message,
+          email_domain: email.split('@')[1]
+        });
       } else {
+        track('Login Success', {
+          method: 'email',
+          email_domain: email.split('@')[1]
+        });
         navigate('/dashboard');
       }
     } catch (error) {
@@ -39,9 +50,21 @@ const LoginPage = () => {
         description: "Failed to connect to the authentication service. Please check your connection and try again.",
         variant: "destructive",
       });
+      track('Login Failed', {
+        method: 'email',
+        error: error instanceof Error ? error.message : 'Connection error',
+        email_domain: email.split('@')[1]
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = () => {
+    track('Login Started', {
+      method: 'google'
+    });
+    signInWithGoogle();
   };
 
   // If already logged in, redirect to dashboard
@@ -127,7 +150,7 @@ const LoginPage = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={signInWithGoogle}
+                onClick={handleGoogleSignIn}
                 className="w-full"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -183,4 +206,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default withPageTracking(LoginPage, 'Login Page');

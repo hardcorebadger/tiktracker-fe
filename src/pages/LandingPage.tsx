@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, LineChart, History, Bell, Zap, Shield, LucideIcon, Github, Twitter, Mail } from 'lucide-react';
 import { DemoTable } from '@/components/DemoTable';
+import { withPageTracking } from '@/components/withPageTracking';
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: LucideIcon, title: string, description: string }) => (
   <div className="flex flex-col items-start p-6 rounded-lg border border-border">
@@ -192,4 +193,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default withPageTracking(LandingPage, 'Landing Page');

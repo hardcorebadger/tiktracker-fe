@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Music, LineChart, Clock, Cloud, RefreshCw } from 'lucide-react';
 import Header from '@/components/Header';
 import { useEffect } from 'react';
+import { withPageTracking } from '@/components/withPageTracking';
 
 const PaywallPage = () => {
   const navigate = useNavigate();
@@ -148,4 +149,4 @@ const PaywallPage = () => {
   );
 };
 
-export default PaywallPage;
+export default withPageTracking(PaywallPage, 'Paywall');

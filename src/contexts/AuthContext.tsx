@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { identify, setUserProperties, reset as resetMixpanel } from '@/services/mixpanel';
 
 type AuthContextType = {
   user: User | null;
@@ -40,6 +41,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (cached && (now - cached.timestamp < 5 * 60 * 1000)) {
         console.log('Using cached subscription status');
         setIsPaidUser(cached.isActive);
+        setUserProperties({
+          subscription_status: cached.isActive ? 'active' : 'inactive'
+        });
         return;
       }
       
@@ -53,6 +57,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) {
         console.error('Subscription check failed:', error);
         setIsPaidUser(false);
+        setUserProperties({
+          subscription_status: 'error',
+          subscription_error: error.message
+        });
         return;
       }
       
@@ -70,9 +78,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       setIsPaidUser(isActive);
+      
+      // Update Mixpanel with subscription info
+      setUserProperties({
+        subscription_status: data?.status || 'none',
+        subscription_active: isActive,
+        subscription_end_date: data?.current_period_end,
+        is_trial: data?.status === 'trialing'
+      });
+      
     } catch (err) {
       console.error('Error checking subscription:', err);
       setIsPaidUser(false);
+      setUserProperties({
+        subscription_status: 'error',
+        subscription_error: err instanceof Error ? err.message : 'Unknown error'
+      });
     }
   };
   
@@ -84,6 +105,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(newSession?.user || null);
     
     if (newSession?.user) {
+      // Identify user in Mixpanel
+      identify(newSession.user.id);
+      setUserProperties({
+        $email: newSession.user.email,
+        $name: newSession.user.user_metadata?.full_name,
+        supabase_id: newSession.user.id,
+        last_sign_in: new Date().toISOString(),
+        auth_provider: newSession.user.app_metadata.provider
+      });
       await checkSubscription(newSession.user.id);
     } else {
       setIsPaidUser(false);
@@ -189,6 +219,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       await supabase.auth.signOut();
+      
+      // Reset Mixpanel on signout
+      resetMixpanel();
       
       // Explicitly clear state instead of waiting for listener
       setUser(null);

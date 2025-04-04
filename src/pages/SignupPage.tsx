@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { Music } from 'lucide-react';
+import { withPageTracking } from '@/components/withPageTracking';
+import { track } from '@/services/mixpanel';
 
 const SignupPage = () => {
   const { user, signUp, signInWithGoogle, isLoading } = useAuth();
@@ -20,6 +22,11 @@ const SignupPage = () => {
     setLoading(true);
     
     try {
+      track('Signup Started', {
+        method: 'email',
+        email_domain: email.split('@')[1]
+      });
+
       const { error } = await signUp(email, password);
       
       if (error) {
@@ -28,10 +35,20 @@ const SignupPage = () => {
           description: error.message,
           variant: "destructive",
         });
+        track('Signup Failed', {
+          method: 'email',
+          error: error.message,
+          email_domain: email.split('@')[1]
+        });
       } else {
         toast({
           title: "Account created",
           description: "Check your email to confirm your account.",
+        });
+        track('Signup Success', {
+          method: 'email',
+          email_domain: email.split('@')[1],
+          requires_confirmation: true
         });
         navigate('/login');
       }
@@ -42,9 +59,21 @@ const SignupPage = () => {
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
+      track('Signup Failed', {
+        method: 'email',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        email_domain: email.split('@')[1]
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignUp = () => {
+    track('Signup Started', {
+      method: 'google'
+    });
+    signInWithGoogle();
   };
 
   // If already logged in, redirect to dashboard
@@ -130,7 +159,7 @@ const SignupPage = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={signInWithGoogle}
+                onClick={handleGoogleSignUp}
                 className="w-full"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -186,4 +215,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default withPageTracking(SignupPage, 'Signup Page');
