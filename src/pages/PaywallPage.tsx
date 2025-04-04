@@ -2,16 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { Music, LineChart, Clock, Cloud } from 'lucide-react';
+import { Music, LineChart, Clock, Cloud, RefreshCw } from 'lucide-react';
 import Header from '@/components/Header';
 import { useEffect } from 'react';
 
 const PaywallPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session, isPaidUser } = useAuth();
+  const { session, isPaidUser, refreshSubscription } = useAuth();
 
   useEffect(() => {
+    console.log('PaywallPage: isPaidUser =', isPaidUser);
     if (isPaidUser) {
       navigate('/dashboard');
     }
@@ -43,6 +44,14 @@ const PaywallPage = () => {
     }
   };
 
+  const handleRefreshSubscription = async () => {
+    await refreshSubscription();
+    toast({
+      title: "Refreshed",
+      description: "Subscription status has been refreshed.",
+    });
+  };
+
   return (
     <>
       <Header />
@@ -57,6 +66,16 @@ const PaywallPage = () => {
             <p className="mt-4 text-lg text-muted-foreground">
               First 7 days are free
             </p>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-4"
+              onClick={handleRefreshSubscription}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Refresh Subscription
+            </Button>
           </div>
 
           <div className="mt-12 space-y-8">

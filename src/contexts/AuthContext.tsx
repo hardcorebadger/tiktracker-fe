@@ -12,6 +12,7 @@ type AuthContextType = {
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  refreshSubscription: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,8 +56,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
       
+      console.log('Subscription data received:', data);
+      
       const isActive = (data?.status === 'active' || data?.status === 'trialing') && 
         new Date(data.current_period_end) > new Date();
+      
+      console.log('Subscription active status:', isActive, 'Current status:', data?.status);
       
       // Update cache
       subscriptionCache.set(userId, {
@@ -89,6 +94,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
     console.log('Setting up auth provider');
+    
+    // Clear subscription cache on mount to ensure fresh check
+    subscriptionCache.clear();
     
     // Safety timeout
     const safetyTimeout = setTimeout(() => {
@@ -218,6 +226,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const refreshSubscription = async () => {
+    console.log('Manually refreshing subscription status');
+    if (user?.id) {
+      // Clear the cache for this user
+      subscriptionCache.delete(user.id);
+      // Re-check subscription
+      await checkSubscription(user.id);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -229,6 +247,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signUp,
         signOut,
         signInWithGoogle,
+        refreshSubscription,
       }}
     >
       {children}
