@@ -14,9 +14,9 @@ import Sparkline from "./Sparkline"
 const demoData = [
   {
     id: 1,
-    sound_name: "Running Up That Hill",
-    creator_name: "Kate Bush",
-    icon_url: "https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7988094152724725765~c5_100x100.jpg",
+    sound_name: "Easy",
+    creator_name: "Commodores",
+    icon_url: "/easy.png",
     video_count: 2800000,
     pct_change_1d: 4.23,
     pct_change_1w: 18.45,
@@ -25,9 +25,9 @@ const demoData = [
   },
   {
     id: 2,
-    sound_name: "About Damn Time",
-    creator_name: "Lizzo",
-    icon_url: "https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7988094152724725765~c5_100x100.jpg",
+    sound_name: "Fable",
+    creator_name: "Gigi Perez",
+    icon_url: "/fable.png",
     video_count: 1200000,
     pct_change_1d: 2.85,
     pct_change_1w: 12.34,
@@ -36,9 +36,9 @@ const demoData = [
   },
   {
     id: 3,
-    sound_name: "Anti-Hero",
-    creator_name: "Taylor Swift",
-    icon_url: "https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/7988094152724725765~c5_100x100.jpg",
+    sound_name: "Shake It Fast - FlyyMix",
+    creator_name: "Dj Flyy",
+    icon_url: "/shakeit.png",
     video_count: 3500000,
     pct_change_1d: 5.67,
     pct_change_1w: 22.43,
