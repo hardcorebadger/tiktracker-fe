@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal, ExternalLink, Trash2, Loader2 } from "lucide-react"
 
@@ -53,19 +54,19 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
       const sound = row.original
       const isImporting = sound.last_scrape === null
       return (
-        <div className={`flex items-center min-w-[300px] ${isImporting ? 'opacity-70' : ''}`}>
+        <div className={`flex items-center space-x-3 ${isImporting ? 'opacity-70' : ''}`}>
           <img 
             src={sound.icon_url} 
             alt={sound.sound_name} 
-            className="h-10 w-10 rounded-md object-cover mr-3"
+            className="h-10 w-10 rounded-md object-cover shrink-0"
           />
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <div className="font-medium text-foreground truncate">{sound.sound_name}</div>
               {isImporting && (
                 <Tooltip>
                   <TooltipTrigger>
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge variant="secondary" className="flex items-center gap-1 shrink-0">
                       <Loader2 className="h-3 w-3 animate-spin" />
                       <span>Importing</span>
                     </Badge>
@@ -129,12 +130,35 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
     },
     cell: ({ row }) => {
       const value = row.original.pct_change_1d;
-      if (value === null) return <div className="text-right">-</div>;
-      const formattedValue = value.toFixed(2);
+      const history = row.original.view_history;
+      if (value === null || !history?.length) return <div className="text-right">-</div>;
+      
+      const current = history[history.length - 1];
+      const prev = history[history.length - 2];
+      const prevPrev = history[history.length - 3];
+      
+      const currentDelta = current - prev;
+      const prevDelta = prev - prevPrev;
+      
+      // Calculate relative change in growth
+      const relativeChange = prevDelta === 0 
+        ? (currentDelta > 0 ? Infinity : currentDelta < 0 ? -Infinity : 0)
+        : ((currentDelta - prevDelta) / Math.abs(prevDelta)) * 100;
+      
+      const formattedValue = isFinite(relativeChange) ? relativeChange.toFixed(2) : '∞';
+      const formattedDelta = Intl.NumberFormat('en-US', { 
+        signDisplay: 'always',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(currentDelta);
+
       return (
-        <div className={`flex items-center justify-end gap-1 ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {value >= 0 ? '↑' : '↓'}
-          <span>{formattedValue}%</span>
+        <div className={`flex flex-col items-end ${relativeChange >= 0 ? 'text-brand-teal' : 'text-brand-red'}`}>
+          <div className="flex items-center gap-1">
+            {relativeChange >= 0 ? '↑' : '↓'}
+            <span>{formattedValue}%</span>
+          </div>
+          <div className="text-xs opacity-70">{formattedDelta}</div>
         </div>
       )
     },
@@ -155,12 +179,35 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
     },
     cell: ({ row }) => {
       const value = row.original.pct_change_1w;
-      if (value === null) return <div className="text-right">-</div>;
-      const formattedValue = value.toFixed(2);
+      const history = row.original.view_history;
+      if (value === null || !history?.length) return <div className="text-right">-</div>;
+      
+      const current = history[history.length - 1];
+      const prev = history[history.length - 8];
+      const prevPrev = history[history.length - 15];
+      
+      const currentDelta = current - prev;
+      const prevDelta = prev - prevPrev;
+      
+      // Calculate relative change in growth
+      const relativeChange = prevDelta === 0 
+        ? (currentDelta > 0 ? Infinity : currentDelta < 0 ? -Infinity : 0)
+        : ((currentDelta - prevDelta) / Math.abs(prevDelta)) * 100;
+      
+      const formattedValue = isFinite(relativeChange) ? relativeChange.toFixed(2) : '∞';
+      const formattedDelta = Intl.NumberFormat('en-US', { 
+        signDisplay: 'always',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(currentDelta);
+
       return (
-        <div className={`flex items-center justify-end gap-1 ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {value >= 0 ? '↑' : '↓'}
-          <span>{formattedValue}%</span>
+        <div className={`flex flex-col items-end ${relativeChange >= 0 ? 'text-brand-teal' : 'text-brand-red'}`}>
+          <div className="flex items-center gap-1">
+            {relativeChange >= 0 ? '↑' : '↓'}
+            <span>{formattedValue}%</span>
+          </div>
+          <div className="text-xs opacity-70">{formattedDelta}</div>
         </div>
       )
     },
@@ -181,12 +228,38 @@ const createColumns = (onDelete: (id: string, e: React.MouseEvent) => void): Col
     },
     cell: ({ row }) => {
       const value = row.original.pct_change_1m;
-      if (value === null) return <div className="text-right">-</div>;
-      const formattedValue = value.toFixed(2);
+      const history = row.original.view_history;
+      if (value === null || !history?.length) return <div className="text-right">-</div>;
+      
+      // For monthly, split the history into two equal parts
+      const midPoint = Math.floor(history.length / 2);
+      
+      const current = history[history.length - 1];
+      const prev = history[midPoint];
+      const start = history[0];
+      
+      const currentDelta = current - prev;
+      const prevDelta = prev - start;
+      
+      // Calculate relative change in growth
+      const relativeChange = prevDelta === 0 
+        ? (currentDelta > 0 ? Infinity : currentDelta < 0 ? -Infinity : 0)
+        : ((currentDelta - prevDelta) / Math.abs(prevDelta)) * 100;
+      
+      const formattedValue = isFinite(relativeChange) ? relativeChange.toFixed(2) : '∞';
+      const formattedDelta = Intl.NumberFormat('en-US', { 
+        signDisplay: 'always',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(currentDelta);
+
       return (
-        <div className={`flex items-center justify-end gap-1 ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {value >= 0 ? '↑' : '↓'}
-          <span>{formattedValue}%</span>
+        <div className={`flex flex-col items-end ${relativeChange >= 0 ? 'text-brand-teal' : 'text-brand-red'}`}>
+          <div className="flex items-center gap-1">
+            {relativeChange >= 0 ? '↑' : '↓'}
+            <span>{formattedValue}%</span>
+          </div>
+          <div className="text-xs opacity-70">{formattedDelta}</div>
         </div>
       )
     },
@@ -273,6 +346,12 @@ export function SoundsTable({
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
     state: {
       sorting,
     },
@@ -280,14 +359,16 @@ export function SoundsTable({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between py-4">
-        <Input
-          placeholder="Search sounds..."
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex items-center gap-2">
+      <div className="flex items-center md:justify-between gap-4 py-4">
+        <div className="flex-1 min-w-0 md:flex-initial md:w-[384px]">
+          <Input
+            placeholder="Search sounds..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            className="w-full"
+          />
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
           <form onSubmit={onAddSound} className="hidden md:flex gap-2">
             <Input
               placeholder="Enter TikTok sound URL"
@@ -307,13 +388,16 @@ export function SoundsTable({
           />
         </div>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead 
+                    key={header.id} 
+                    className={`${header.column.id === 'sound_info' ? 'w-[200px] md:w-[300px]' : ''} px-2 md:px-4`}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -334,7 +418,7 @@ export function SoundsTable({
                   onClick={() => onRowClick(row.original.url)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-2 md:px-4">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -355,6 +439,30 @@ export function SoundsTable({
             )}
           </TableBody>
         </Table>
+      </div>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4">
+        <div className="text-sm text-muted-foreground order-2 md:order-1">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
+        </div>
+        <div className="flex items-center space-x-2 order-1 md:order-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   )

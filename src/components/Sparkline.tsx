@@ -9,8 +9,8 @@ interface SparklineProps {
 const Sparkline: React.FC<SparklineProps> = ({ data, height = 30, width = 100 }) => {
   if (!data || data.length === 0) return null;
 
-  const DAYS = 30;
-  // Take last 30 points if we have more
+  const DAYS = 7;
+  // Take last 7 points if we have more
   const recentData = data.length > DAYS ? data.slice(-DAYS) : data;
 
   const min = Math.min(...recentData);

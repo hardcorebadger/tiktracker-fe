@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, LineChart, History, Bell, Zap, Shield, LucideIcon, Github, Twitter, Mail } from 'lucide-react';
-import { DemoTable } from '@/components/DemoTable';
+import { TestSoundsTable } from '@/components/TestSoundsTable';
 import { withPageTracking } from '@/components/withPageTracking';
 
 const FeatureCard = ({ icon: Icon, title, description }: { icon: LucideIcon, title: string, description: string }) => (
@@ -135,7 +135,7 @@ const LandingPage = () => {
               </p>
             </div>
             <div className="rounded-lg overflow-hidden shadow-sm">
-              <DemoTable />
+              <TestSoundsTable useDemo={true} />
             </div>
             <div className="mt-6 text-center text-sm text-muted-foreground">
               Example data shown. Sign up to track your own sounds.

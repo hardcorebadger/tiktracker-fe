@@ -96,19 +96,19 @@ export function DemoTable() {
                 {formatNumber(row.video_count)}
               </TableCell>
               <TableCell>
-                <div className={`flex items-center justify-end gap-1 ${row.pct_change_1d >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`flex items-center justify-end gap-1 ${row.pct_change_1d >= 0 ? 'text-brand-teal' : 'text-brand-red'}`}>
                   {row.pct_change_1d >= 0 ? '↑' : '↓'}
                   <span>{row.pct_change_1d.toFixed(2)}%</span>
                 </div>
               </TableCell>
               <TableCell>
-                <div className={`flex items-center justify-end gap-1 ${row.pct_change_1w >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`flex items-center justify-end gap-1 ${row.pct_change_1w >= 0 ? 'text-brand-teal' : 'text-brand-red'}`}>
                   {row.pct_change_1w >= 0 ? '↑' : '↓'}
                   <span>{row.pct_change_1w.toFixed(2)}%</span>
                 </div>
               </TableCell>
               <TableCell>
-                <div className={`flex items-center justify-end gap-1 ${row.pct_change_1m >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`flex items-center justify-end gap-1 ${row.pct_change_1m >= 0 ? 'text-brand-teal' : 'text-brand-red'}`}>
                   {row.pct_change_1m >= 0 ? '↑' : '↓'}
                   <span>{row.pct_change_1m.toFixed(2)}%</span>
                 </div>
