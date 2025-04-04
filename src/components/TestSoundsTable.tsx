@@ -3,22 +3,26 @@ import { SoundsTable } from "./SoundsTable";
 import { Sound } from "@/services/soundService";
 
 // Generate fake data
-const generateFakeData = (count: number): Sound[] => {
+const generateFakeData = (count: number, customSounds?: Array<{ sound_name?: string; creator_name?: string; video_count?: number }>): Sound[] => {
   const sounds: Sound[] = [];
   const artists = ["Drake", "Taylor Swift", "Bad Bunny", "The Weeknd", "Doja Cat", "Post Malone", "Ariana Grande", "Ed Sheeran"];
   const songPrefixes = ["Remix of", "Cover of", "Sound from", "Beat from", "Sample of", "Mix of", "Mashup with"];
   const songWords = ["Love", "Dance", "Night", "Dream", "Star", "Heart", "Beat", "Vibe", "Wave", "Mood"];
 
-  for (let i = 0; i < count; i++) {
-    const randomArtist = artists[Math.floor(Math.random() * artists.length)];
+  const total = customSounds ? Math.max(count, customSounds.length) : count;
+
+  for (let i = 0; i < total; i++) {
+    const customSound = customSounds?.[i];
+    const randomArtist = customSound?.creator_name || artists[Math.floor(Math.random() * artists.length)];
     const randomPrefix = songPrefixes[Math.floor(Math.random() * songPrefixes.length)];
     const randomWord = songWords[Math.floor(Math.random() * songWords.length)];
-    const videoCount = Math.floor(Math.random() * 10000000) + 100000;
+    const videoCount = customSound?.video_count || (Math.floor(Math.random() * 10000000) + 100000);
+    const soundName = customSound?.sound_name || `${randomPrefix} ${randomWord}`;
     
     // Generate random history data
     const historyLength = 30;
     const viewHistory: number[] = [];
-    let lastCount = videoCount - Math.floor(Math.random() * 1000000);
+    let lastCount = videoCount - Math.floor(Math.random() * (videoCount * 0.2)); // Start 0-10% lower
     
     for (let j = 0; j < historyLength; j++) {
       viewHistory.push(lastCount);
@@ -35,10 +39,10 @@ const generateFakeData = (count: number): Sound[] => {
       id: `sound-${i}`,
       created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
       url: `https://tiktok.com/music/sound-${i}`,
-      sound_name: `${randomPrefix} ${randomWord}`,
+      sound_name: soundName,
       creator_name: randomArtist,
       video_count: videoCount,
-      icon_url: `https://picsum.photos/seed/${i}/100/100`,
+      icon_url: `https://picsum.photos/seed/${soundName.toLowerCase().replace(/\s+/g, '-')}/100/100`,
       view_history: viewHistory,
       pct_change_1d: pctChange1d,
       pct_change_1w: pctChange1w,
@@ -50,50 +54,23 @@ const generateFakeData = (count: number): Sound[] => {
   return sounds;
 };
 
-// Demo data for landing page
-const demoSounds: Sound[] = [
+// Demo data configuration
+const demoSoundConfigs = [
   {
-    id: "1",
-    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
     sound_name: "original sound - JVKE",
     creator_name: "JVKE",
-    icon_url: "https://picsum.photos/seed/jvke/100/100",
-    url: "https://www.tiktok.com/music/original-sound-7188625618919416579",
-    video_count: 1234567,
-    pct_change_1d: 2.5,
-    pct_change_1w: 15.3,
-    pct_change_1m: 45.8,
-    last_scrape: new Date().toISOString(),
-    view_history: [100000, 150000, 200000, 300000, 400000, 600000, 800000, 1000000, 1234567],
+    video_count: 1234567
   },
   {
-    id: "2",
-    created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
     sound_name: "Flowers",
     creator_name: "Miley Cyrus",
-    icon_url: "https://picsum.photos/seed/flowers/100/100",
-    url: "https://www.tiktok.com/music/Flowers-7189419612177991426",
-    video_count: 987654,
-    pct_change_1d: -1.2,
-    pct_change_1w: 8.7,
-    pct_change_1m: 25.4,
-    last_scrape: new Date().toISOString(),
-    view_history: [500000, 600000, 700000, 750000, 800000, 850000, 900000, 950000, 987654],
+    video_count: 987654
   },
   {
-    id: "3",
-    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
     sound_name: "Anti-Hero",
     creator_name: "Taylor Swift",
-    icon_url: "https://picsum.photos/seed/antihero/100/100",
-    url: "https://www.tiktok.com/music/Anti-Hero-7156932840231458561",
-    video_count: 2345678,
-    pct_change_1d: 5.8,
-    pct_change_1w: 22.4,
-    pct_change_1m: 68.9,
-    last_scrape: new Date().toISOString(),
-    view_history: [1000000, 1200000, 1400000, 1600000, 1800000, 2000000, 2200000, 2300000, 2345678],
-  },
+    video_count: 2345678
+  }
 ];
 
 interface TestSoundsTableProps {
@@ -103,7 +80,7 @@ interface TestSoundsTableProps {
 }
 
 export function TestSoundsTable({ count = 50, useDemo = false, className = "" }: TestSoundsTableProps) {
-  const data = useDemo ? demoSounds : generateFakeData(count);
+  const data = useDemo ? generateFakeData(3, demoSoundConfigs) : generateFakeData(count);
 
   const handleRowClick = (url: string) => {
     window.open(url, '_blank');
@@ -122,14 +99,14 @@ export function TestSoundsTable({ count = 50, useDemo = false, className = "" }:
   const [newSoundUrl, setNewSoundUrl] = React.useState("");
 
   return (
-      <SoundsTable
-        data={data}
-        onRowClick={handleRowClick}
-        onDelete={handleDelete}
-        onAddSound={handleAddSound}
-        isSubmitting={false}
-        newSoundUrl={newSoundUrl}
-        setNewSoundUrl={setNewSoundUrl}
-      />
+    <SoundsTable
+      data={data}
+      onRowClick={handleRowClick}
+      onDelete={handleDelete}
+      onAddSound={handleAddSound}
+      isSubmitting={false}
+      newSoundUrl={newSoundUrl}
+      setNewSoundUrl={setNewSoundUrl}
+    />
   );
 } 
