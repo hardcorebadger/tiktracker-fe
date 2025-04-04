@@ -13,7 +13,6 @@ import PaywallPage from "./pages/PaywallPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import DashboardPage from "./pages/DashboardPage";
 import SettingsPage from "./pages/SettingsPage";
-import DirectoryPage from "./pages/DirectoryPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +26,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/directory" element={<DirectoryPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route 
